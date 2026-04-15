@@ -22,9 +22,9 @@ todo
 ## How to
 ### Prerequisites
 
-If using Windows, the most troublesome part is setting up the **esp-matter** SDK itself -- since **esp-matter** is basically an abstraction over the [CHIP](https://github.com/project-chip/connectedhomeip/) SDK, 
-so native Windows build is not supported.
+If using Windows, the most troublesome part is setting up the **esp-matter** SDK itself — since **esp-matter** is basically an abstraction over the [CHIP](https://github.com/project-chip/connectedhomeip/) SDK, 
+native Windows build is not supported.
 
-WSL2 is fine, but you have to store **esp-matter** inside the native linux fs -- Windows to linux fs passthrough won't work.
+WSL2 is fine, but you have to store **esp-matter** inside the native linux fs — Windows to linux fs passthrough won't work.
 
 
