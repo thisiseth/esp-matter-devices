@@ -1,6 +1,6 @@
 # esp-matter-devices
 
-A collection of Matter devices i've built using [esp-matter](https://github.com/espressif/esp-matter/) SDK for esp32 family SoCs.
+A collection of Matter devices i've built using [esp-matter](https://github.com/espressif/esp-matter/) SDK for **esp32** family SoCs.
 
 Important: these are quick cheap and dirty 'working enough' implementations built on top of SDK samples, so consider them more like a source of useful insights, than ready to use polished products.
 
@@ -20,7 +20,11 @@ todo
 todo
 
 ## How to
+### Prerequisites
 
-todo
+If you work on Windows, the most troublesome part is setting up the **esp-matter** SDK itself -- since the **esp-matter** is basically an abstraction over [CHIP](https://github.com/project-chip/connectedhomeip/) SDK, 
+native Windows build is not supported.
+
+WSL2 is fine, but you have to store the **esp-matter** inside the native linux fs -- Windows to linux fs passthrough won't work.
 
 
