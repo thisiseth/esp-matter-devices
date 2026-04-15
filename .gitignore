@@ -1,0 +1,8 @@
+sdkconfig
+sdkconfig.old
+build
+managed_components
+out
+
+# Dependency lock files
+dependencies.lock
