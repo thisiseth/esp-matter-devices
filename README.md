@@ -9,7 +9,7 @@ Important: these are quick cheap and dirty 'working enough' implementations buil
 ### [lunalamp-matter](/lunalamp-matter/)
 
 Extended Color Light device for RGBWW strips, port of my HomeKit [lunalamp-esp32](https://github.com/thisiseth/lunalamp-esp32/). 
-Transforms Matter XY/CT colours into RGBWW and uses LEDC PWM with external MOSFETs to drive a 12v led strip.
+Transforms Matter XY/CT colors into RGBWW and uses LEDC PWM with external MOSFETs to drive a 12v led strip.
 
 ### [matter-water-pressure-sensor](/matter-water-pressure-sensor/)
 
