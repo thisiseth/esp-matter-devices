@@ -3,6 +3,7 @@ sdkconfig.old
 build
 managed_components
 out
+#.vscode
 
 # Dependency lock files
 dependencies.lock

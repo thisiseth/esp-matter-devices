@@ -42,8 +42,7 @@
 using namespace chip::DeviceLayer;
 #endif
 
-#include "i2c_wp_sensor.h"
-#include "onboard_led_helper.h"
+#include "chime_delegate.h"
 
 static const char *TAG = "app_main";
 
@@ -53,6 +52,8 @@ using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
 constexpr auto k_timeout_seconds = 300;
+
+static chip::app::Clusters::Chime::ChimeDelegateImpl chime_delegate;
 
 #ifdef CONFIG_ENABLE_SET_CERT_DECLARATION_API
 extern const uint8_t cd_start[] asm("_binary_certification_declaration_der_start");
@@ -70,7 +71,7 @@ static const uint16_t s_decryption_key_len = decryption_key_end - decryption_key
 #endif // CONFIG_ENABLE_ENCRYPTED_OTA
 
 //to debug pairing without the sensor connected
-#define DEBUG_SKIP_WP_SENSOR_INIT
+//#define DEBUG_SKIP_WP_SENSOR_INIT
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -190,7 +191,6 @@ extern "C" void app_main()
     app_driver_handle_t button_handle = app_driver_button_init();
 
     app_reset_button_register(button_handle);
-    onboard_led_off((led_driver_handle_t)light_handle);
 
     /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
     node::config_t node_config;
@@ -201,25 +201,13 @@ extern "C" void app_main()
 
     MEMORY_PROFILER_DUMP_HEAP_STAT("node created");
 
-    //pressure endpoint
-    pressure_sensor::config_t pressure_sensor_config;
-    //one unit is 0.1kpa
-    pressure_sensor_config.pressure_measurement.min_measured_value = nullable<int16_t>(SENSOR_PRESSURE_TO_MATTER(I2C_WP_SENSOR_PRESSURE_BAR_MIN));
-    pressure_sensor_config.pressure_measurement.max_measured_value = nullable<int16_t>(SENSOR_PRESSURE_TO_MATTER(I2C_WP_SENSOR_PRESSURE_BAR_MAX));
-    pressure_sensor_config.pressure_measurement.measured_value = pressure_sensor_config.pressure_measurement.min_measured_value;
+    //chime endpoint
+    chime::config_t chime_config;
 
-    endpoint_t *pressure_sensor_ep = pressure_sensor::create(node, &pressure_sensor_config, ENDPOINT_FLAG_NONE, NULL);
-    ABORT_APP_ON_FAILURE(pressure_sensor_ep != nullptr, ESP_LOGE(TAG, "Failed to create pressure sensor endpoint"));
+    chime_config.chime.delegate = &chime_delegate;
 
-    // temp endpoint
-    temperature_sensor::config_t temp_sensor_config;
-    //one unit is 0.01c
-    temp_sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(SENSOR_TEMP_TO_MATTER(I2C_WP_SENSOR_TEMP_C_MIN));
-    temp_sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(SENSOR_TEMP_TO_MATTER(I2C_WP_SENSOR_TEMP_C_MAX));
-    temp_sensor_config.temperature_measurement.measured_value = temp_sensor_config.temperature_measurement.min_measured_value;
-
-    endpoint_t *temp_sensor_ep = temperature_sensor::create(node, &temp_sensor_config, ENDPOINT_FLAG_NONE, NULL);
-    ABORT_APP_ON_FAILURE(temp_sensor_ep != nullptr, ESP_LOGE(TAG, "Failed to create temperature sensor endpoint"));
+    endpoint_t *chime_ep = chime::create(node, &chime_config, ENDPOINT_FLAG_NONE, NULL);
+    ABORT_APP_ON_FAILURE(chime_ep != nullptr, ESP_LOGE(TAG, "Failed to create chime endpoint"));
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD && CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
     // Enable secondary network interface
@@ -253,36 +241,8 @@ extern "C" void app_main()
 
     MEMORY_PROFILER_DUMP_HEAP_STAT("matter started");
 
-#ifndef DEBUG_SKIP_WP_SENSOR_INIT
-    err = app_driver_wp_sensor_init(endpoint::get_id(pressure_sensor_ep), endpoint::get_id(temp_sensor_ep));
-
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to init i2c sensor: %s", esp_err_to_name(err));
-
-        for (int i = 0; i < 3; ++i)
-        {
-            onboard_led_red((led_driver_handle_t)light_handle);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            onboard_led_off((led_driver_handle_t)light_handle);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-        }
-
-        esp_system_abort("Failed to init i2c sensor");
-    }
-#else
-    ESP_LOGW(TAG, "sensor init disabled");
-
-    auto pressure_attr = attribute::get(endpoint::get_id(pressure_sensor_ep), PressureMeasurement::Id, PressureMeasurement::Attributes::MeasuredValue::Id);
-    auto temp_attr = attribute::get(endpoint::get_id(temp_sensor_ep), TemperatureMeasurement::Id, TemperatureMeasurement::Attributes::MeasuredValue::Id);
-
-    auto val = esp_matter_nullable_int16(12345);
-
-    attribute::set_val(pressure_attr, &val);
-    attribute::set_val(temp_attr, &val);
-
-    onboard_led_blue((led_driver_handle_t)light_handle);
-#endif
+    err = app_driver_audio_init();
+    ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG, "Failed to init audio"));
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
     //to get couple extra rssi dbms disable wi-fi 6 (c6) and power saving 
@@ -310,16 +270,6 @@ extern "C" void app_main()
     {
         MEMORY_PROFILER_DUMP_HEAP_STAT("Idle");
         vTaskDelay(10000 / portTICK_PERIOD_MS);
-
-#ifndef DEBUG_SKIP_WP_SENSOR_INIT
-        update_sensor_values();
-#else
-        auto fake_value = esp_matter_nullable_int16(SENSOR_PRESSURE_TO_MATTER(3.0));
-        attribute::update(endpoint::get_id(pressure_sensor_ep), PressureMeasurement::Id, PressureMeasurement::Attributes::MeasuredValue::Id, &fake_value);
-
-        fake_value = esp_matter_nullable_int16(SENSOR_TEMP_TO_MATTER(25.0));
-        attribute::update(endpoint::get_id(temp_sensor_ep), TemperatureMeasurement::Id, TemperatureMeasurement::Attributes::MeasuredValue::Id, &fake_value);
-#endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
         wifi_ap_record_t ap_info;

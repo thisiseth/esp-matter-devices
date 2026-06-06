@@ -51,12 +51,12 @@ set(EXTRA_COMPONENT_DIRS
     "${ESP_MATTER_PATH}/device_hal/device"
     ${extra_components_dirs_append})
 
-project(matter_water_pressure_sensor)
+project(doorbell_chime)
 
 # WARNING: This is just an example for using key for decrypting the encrypted OTA image
 # Please do not use it as is.
 if(CONFIG_ENABLE_ENCRYPTED_OTA)
-    target_add_binary_data(matter_water_pressure_sensor.elf "esp_image_encryption_key.pem" TEXT)
+    target_add_binary_data(doorbell_chime.elf "esp_image_encryption_key.pem" TEXT)
 endif()
 
 idf_build_set_property(CXX_COMPILE_OPTIONS "-std=gnu++17;-Os;-DCHIP_HAVE_CONFIG_H;-Wno-overloaded-virtual" APPEND)

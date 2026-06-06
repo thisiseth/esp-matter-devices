@@ -27,4 +27,6 @@ native Windows build is not supported.
 
 WSL2 is fine, but you have to store **esp-matter** inside the native linux fs — Windows to linux fs passthrough won't work.
 
+### Provisoning
 
+If you want your device to have a non-generic vendor, name and a unique provision QR-code — follow the instructions here https://github.com/espressif/esp-matter-tools/tree/main/mfg_tool
