@@ -13,9 +13,13 @@ Transforms Matter XY/CT colors into RGBWW and uses LEDC PWM with external MOSFET
 
 ### [matter-water-pressure-sensor](/matter-water-pressure-sensor/)
 
-todo
+Makes a Matter pressure and temperature sensor from an aliexpress water pressure sensor known as KY-3V3-IIC or KY-3V3-I2C, this one:
 
-### doorbell-chime
+<img src="./doc/ky-3v3-iic.jpg" alt="plot" width="500">
+
+Although the sensor indeed does report temperature, i would not rely heavily on it - i guess there are reasons it is not advertised as pressure AND temperature sensor
+
+### [doorbell-chime](/doorbell-chime)
 
 A Matter 1.5-introduced chime device using ESP32 8-bit DAC or I2S PCM-to-PDM to output a small wave file. Crude and requires trickery to use with Home Assistant.
 
