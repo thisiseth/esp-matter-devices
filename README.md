@@ -17,7 +17,7 @@ Makes a Matter pressure and temperature sensor from an aliexpress water pressure
 
 <img src="./doc/ky-3v3-iic.jpg" alt="plot" width="500">
 
-Although the sensor indeed does report temperature, i would not rely heavily on it - i guess there are reasons it is not advertised as pressure AND temperature sensor
+Although the sensor indeed does report temperature, i would not rely heavily on it - i guess there are reasons it is not advertised as a pressure AND temperature sensor
 
 ### [doorbell-chime](/doorbell-chime)
 
