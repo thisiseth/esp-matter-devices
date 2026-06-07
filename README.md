@@ -17,9 +17,10 @@ todo
 
 ### doorbell-chime
 
-todo
+A Matter 1.5-introduced chime device using ESP32 8-bit DAC or I2S PCM-to-PDM to output a small wave file. Crude and requires trickery to use with Home Assistant.
 
 ## How to
+
 ### Prerequisites
 
 If using Windows, the most troublesome part is setting up the **esp-matter** SDK itself — since **esp-matter** is basically an abstraction over the [CHIP](https://github.com/project-chip/connectedhomeip/) SDK, 
@@ -27,6 +28,7 @@ native Windows build is not supported.
 
 WSL2 is fine, but you have to store **esp-matter** inside the native linux fs — Windows to linux fs passthrough won't work.
 
-### Provisoning
+### Provisioning
 
-If you want your device to have a non-generic vendor, name and a unique provision QR-code — follow the instructions here https://github.com/espressif/esp-matter-tools/tree/main/mfg_tool
+If you want your device to have a non-generic vendor, name and a unique provision QR-code — 
+follow the instructions here https://github.com/espressif/esp-matter-tools/tree/main/mfg_tool

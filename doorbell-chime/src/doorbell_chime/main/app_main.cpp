@@ -43,6 +43,7 @@ using namespace chip::DeviceLayer;
 #endif
 
 #include "chime_delegate.h"
+#include "audio.h"
 
 static const char *TAG = "app_main";
 
@@ -241,8 +242,9 @@ extern "C" void app_main()
 
     MEMORY_PROFILER_DUMP_HEAP_STAT("matter started");
 
-    err = app_driver_audio_init();
-    ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG, "Failed to init audio"));
+    ABORT_APP_ON_FAILURE(audio_init(AUDIO_BACKEND_NONE, (gpio_num_t)-1), ESP_LOGE(TAG, "Failed to init audio"));
+
+    chime_delegate.SoundCallback = audio_play;
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
     //to get couple extra rssi dbms disable wi-fi 6 (c6) and power saving 

@@ -7,3 +7,5 @@ out
 
 # Dependency lock files
 dependencies.lock
+
+audio.wav

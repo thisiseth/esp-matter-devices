@@ -38,11 +38,6 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
     return ESP_OK;
 }
 
-esp_err_t app_driver_audio_init(void)
-{
-    return ESP_OK;
-}
-
 app_driver_handle_t app_driver_light_init()
 {
     /* Initialize led */

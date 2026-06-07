@@ -15,8 +15,11 @@ public:
     ChimeDelegateImpl() = default;
     ~ChimeDelegateImpl() override = default;
 
+    using PlayChimeSoundCallback = void (*)();
+    PlayChimeSoundCallback SoundCallback = nullptr;
+
     CHIP_ERROR GetChimeSoundByIndex(uint8_t chimeIndex, uint8_t &chimeID, MutableCharSpan &name) override {
-        ESP_LOGW(LOG_TAG, "GetChimeSoundByIndex with id %d", chimeIndex);
+        ESP_LOGI(TAG, "GetChimeSoundByIndex with id %d", chimeIndex);
 
         if (chimeIndex != 0)
             return CHIP_ERROR_PROVIDER_LIST_EXHAUSTED;
@@ -26,7 +29,7 @@ public:
     }
 
     CHIP_ERROR GetChimeIDByIndex(uint8_t chimeIndex, uint8_t &chimeID) override {
-        ESP_LOGW(LOG_TAG, "GetChimeIDByIndex with id %d", chimeIndex);
+        ESP_LOGI(TAG, "GetChimeIDByIndex with id %d", chimeIndex);
 
         if (chimeIndex != 0)
             return CHIP_ERROR_PROVIDER_LIST_EXHAUSTED;
@@ -37,12 +40,18 @@ public:
     }
 
     Protocols::InteractionModel::Status PlayChimeSound() override {
-        ESP_LOGE(LOG_TAG, "%s is not implemented", __func__);
+        ESP_LOGI(TAG, "PlayChimeSound call");
+
+        if (SoundCallback)
+            SoundCallback();
+        else
+            ESP_LOGE(TAG, "SoundCallback is null");
+
         return Protocols::InteractionModel::Status::Success;
     }
 
 private:
-    const char *LOG_TAG = "chime";
+    const char *TAG = "chime";
 };
 
 } // namespace Chime

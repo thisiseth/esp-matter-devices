@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <esp_log.h>
-#include "../../doorbell_chime/main/i2c_wp_sensor.h"
+#include "../../doorbell_chime/main/audio.h"
 #include "freertos/FreeRTOS.h"
 
 static const char *TAG = "main";
@@ -9,24 +9,19 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "trying to initialize audio");
 
-    if (!i2c_wp_sensor_init(20, 19)) 
+    if (!audio_init(AUDIO_BACKEND_DAC, 25)) 
     {
-        ESP_LOGE(TAG, "failed to initialize sensor");
+        ESP_LOGE(TAG, "failed to initialize audio");
         vTaskDelay(pdMS_TO_TICKS(5000));
-        esp_system_abort("no sensor");
+        esp_system_abort("no audio");
     }
 
-    ESP_LOGI(TAG, "sensor iniialized");
+    ESP_LOGI(TAG, "audio iniialized");
 
     for (;;) 
     {
-        float pressure_bar, temp_c;
+        audio_play();
 
-        if (i2c_wp_sensor_read(&pressure_bar, &temp_c))
-            ESP_LOGI(TAG, "measure: P=%f, T=%f", pressure_bar, temp_c);
-        else
-            ESP_LOGW(TAG, "measure: fail");
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
