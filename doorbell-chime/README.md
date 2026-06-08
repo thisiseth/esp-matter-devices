@@ -29,4 +29,4 @@ to create your own `audio.wav` use `convert_to_wav.py` script
 1. ffmpeg required - `pip install imageio-ffmpeg`
 2. `python3 convert_to_wav.py input_file_of_any_ffmpeg_supported_format output_file start_from_second duration_in_seconds`
 
-4 seconds take roughly 400kb - about what i have left with 2mb factory partition on og esp32
+On a 4mb flash i have around 2000k free, thats about 20s of audio - plenty for a doorbell

@@ -23,6 +23,10 @@ Although the sensor indeed does report temperature, i would not rely heavily on 
 
 A Matter 1.5-introduced chime device using ESP32 8-bit DAC or I2S PCM-to-PDM to output a small wave file. Crude and requires trickery to use with Home Assistant.
 
+DAC is available only on ESP32, PCM-to-PDM is available on ESP32, ESP32-S3 and ESP32-P4.
+
+DAC can be used if you have a way to amplify the analog signal (e.g. a TDA IC), or you can try using PCM-to-PDM with a small gate charge MOSFET like AO3400.
+
 ## How to
 
 ### Prerequisites

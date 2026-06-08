@@ -242,7 +242,8 @@ extern "C" void app_main()
 
     MEMORY_PROFILER_DUMP_HEAP_STAT("matter started");
 
-    ABORT_APP_ON_FAILURE(audio_init(AUDIO_BACKEND_NONE, (gpio_num_t)-1), ESP_LOGE(TAG, "Failed to init audio"));
+    ABORT_APP_ON_FAILURE(audio_init(AUDIO_BACKEND_PCM_TO_PDM, (gpio_num_t)25), 
+                         ESP_LOGE(TAG, "Failed to init audio"));
 
     chime_delegate.SoundCallback = audio_play;
 

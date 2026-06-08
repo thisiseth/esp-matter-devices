@@ -8,7 +8,7 @@ from pathlib import Path
 import imageio_ffmpeg
 
 
-SAMPLE_RATE = 44_100
+SAMPLE_RATE = 44100
 CHANNELS = 1
 SAMPLE_WIDTH = 2  # 16-bit
 
@@ -24,8 +24,8 @@ def convert_audio(input_path: Path, output_path: Path, start: float, duration: f
         "-ss", str(start),
         "-t", str(duration),
         "-vn",
-        "-ac", "1",
-        "-ar", "44100",
+        "-ac", str(CHANNELS),
+        "-ar", str(SAMPLE_RATE),
         "-acodec", "pcm_s16le",
         "-f", "s16le",
         "pipe:1",

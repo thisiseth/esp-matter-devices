@@ -32,6 +32,8 @@ _Static_assert(sizeof(wav_header_t) == 44, "Unexpected WAV header size");
 
 const char *TAG = "audio";
 
+#define AUDIO_WAV_SAMPLE_RATE 44100
+
 extern const uint8_t audio_wav_start[] asm("_binary_audio_wav_start");
 extern const uint8_t audio_wav_end[] asm("_binary_audio_wav_end");
 
@@ -44,6 +46,10 @@ static TaskHandle_t audio_task;
 
 #ifdef CONFIG_SOC_DAC_SUPPORTED
 static dac_continuous_handle_t dac_handle;
+#endif
+
+#ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
+static i2s_chan_handle_t i2s_handle;
 #endif
 
 static bool parse_wav_header(void)
@@ -71,10 +77,10 @@ static bool parse_wav_header(void)
     if (header.fmt_size != 16 ||
         header.audio_format != 1 || //pcm
         header.channels != 1 ||
-        header.sample_rate != 44100 ||
+        header.sample_rate != AUDIO_WAV_SAMPLE_RATE ||
         header.bits_per_sample != 16 ||
         header.block_align != 2 || //channels*bitdepth/8
-        header.byte_rate != 88200) 
+        header.byte_rate != (AUDIO_WAV_SAMPLE_RATE * 2)) 
     {
         ESP_LOGE(TAG, "wav format is not supported: should be simple mono 16-bit 44.1k PCM");
         return false;
@@ -90,7 +96,7 @@ static bool parse_wav_header(void)
     audio_wav_samples = (const int16_t*)(audio_wav_start + sizeof(wav_header_t));
     audio_wav_samples_len = header.data_size / 2;
 
-    ESP_LOGI(TAG, "wav file size: %dk, length: %.2f s", audio_wav_samples_len/1024, audio_wav_samples_len/(float)header.byte_rate);
+    ESP_LOGI(TAG, "wav file size: %dk, length: %.2f s", (audio_wav_samples_len)/1024, (2*audio_wav_samples_len)/(float)header.byte_rate);
 
     return true;
 }
@@ -111,6 +117,11 @@ static void audio_func(void *data)
             if (ulTaskNotifyTake(pdTRUE, 0))
                 current_sample_pos = 0; //another play queued - restart
 
+            int samples_available = audio_wav_samples_len - current_sample_pos;
+
+            if (samples_available > 1024)
+                samples_available = 1024;
+
             switch (audio_backend)
             {
 #ifdef CONFIG_SOC_DAC_SUPPORTED
@@ -118,28 +129,25 @@ static void audio_func(void *data)
                 {
                     uint8_t dac_samples[1024];
 
-                    int samples_available = audio_wav_samples_len - current_sample_pos;
-
-                    if (samples_available > 1024)
-                        samples_available = 1024;
-
                     for (int i = 0; i < samples_available; ++i) 
                         dac_samples[i] = (audio_wav_samples[current_sample_pos + i] + 32768) >> 8;
                     
                     dac_continuous_write(dac_handle, dac_samples, samples_available, NULL, -1);
-                    current_sample_pos += samples_available;
                     break;
                 }
 #endif
 #ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
                 case AUDIO_BACKEND_PCM_TO_PDM:
                 {
+                    i2s_channel_write(i2s_handle, audio_wav_samples + current_sample_pos, samples_available * 2, NULL, portMAX_DELAY);
                     break;
                 }
 #endif
                 default:
                     esp_system_abort("not implemented audio backend @ audio_func");
             }
+
+            current_sample_pos += samples_available;
         }
 
         ESP_LOGI(TAG, "audio finished playing");
@@ -198,7 +206,7 @@ bool audio_init(audio_backend_t backend, gpio_num_t output_pin)
                 .desc_num = 4,
                 .buf_size = 1024,
 
-                .freq_hz = 44100,
+                .freq_hz = AUDIO_WAV_SAMPLE_RATE,
                 .offset = 0,
 
                 .clk_src = DAC_DIGI_CLK_SRC_APLL,
@@ -225,6 +233,43 @@ bool audio_init(audio_backend_t backend, gpio_num_t output_pin)
 #ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
         case AUDIO_BACKEND_PCM_TO_PDM:
         {
+            i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+            chan_cfg.dma_desc_num = 4;
+            chan_cfg.dma_frame_num = 1024;
+            chan_cfg.auto_clear = true;
+
+            if (i2s_new_channel(&chan_cfg, &i2s_handle, NULL) != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "i2s_new_channel failed");
+                return false;
+            }
+
+            const i2s_pdm_tx_config_t pdm_cfg = 
+            {
+                .clk_cfg = I2S_PDM_TX_CLK_DEFAULT_CONFIG(AUDIO_WAV_SAMPLE_RATE), //tried using 'dac' preset but it makes audio slower for 44.1k
+                .slot_cfg = I2S_PDM_TX_SLOT_PCM_FMT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO),
+
+                .gpio_cfg = 
+                {
+                    .clk = -1,
+                    .dout = output_pin
+                },
+            };
+
+            if (i2s_channel_init_pdm_tx_mode(i2s_handle, &pdm_cfg) != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "PDM TX init failed");
+                return false;
+            }
+
+            if (i2s_channel_enable(i2s_handle) != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "I2S enable failed");
+                return false;
+            }
+
+            gpio_set_drive_capability(output_pin, GPIO_DRIVE_CAP_3);
+
             if (xTaskCreate(audio_func, "audio", 8192, NULL, 5, &audio_task) != pdPASS)
             {
                 ESP_LOGE(TAG, "failed to create audio task");
