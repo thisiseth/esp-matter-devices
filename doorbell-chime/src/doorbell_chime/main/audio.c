@@ -35,8 +35,8 @@ const char *TAG = "audio";
 extern const uint8_t audio_wav_start[] asm("_binary_audio_wav_start");
 extern const uint8_t audio_wav_end[] asm("_binary_audio_wav_end");
 
-static const uint8_t *audio_wav_data;
-static uint32_t audio_wav_data_len;
+static const int16_t *audio_wav_samples;
+static uint32_t audio_wav_samples_len;
 
 static int audio_backend = -1;
 
@@ -87,10 +87,10 @@ static bool parse_wav_header(void)
         return false;
     }
 
-    audio_wav_data = audio_wav_start + sizeof(wav_header_t);
-    audio_wav_data_len = audio_wav_len - sizeof(wav_header_t);
+    audio_wav_samples = (const int16_t*)(audio_wav_start + sizeof(wav_header_t));
+    audio_wav_samples_len = header.data_size / 2;
 
-    ESP_LOGI(TAG, "wav file size: %dk, length: %.2f s", audio_wav_len/1024, audio_wav_data_len/(float)header.byte_rate);
+    ESP_LOGI(TAG, "wav file size: %dk, length: %.2f s", audio_wav_samples_len/1024, audio_wav_samples_len/(float)header.byte_rate);
 
     return true;
 }
@@ -104,12 +104,12 @@ static void audio_func(void *data)
         if (audio_backend == AUDIO_BACKEND_NONE)
             continue;
 
-        int current_byte = 0;
+        int current_sample_pos = 0;
 
-        while (current_byte < audio_wav_data_len)
+        while (current_sample_pos < audio_wav_samples_len)
         {
             if (ulTaskNotifyTake(pdTRUE, 0))
-                current_byte = 0; //another play queued - restart
+                current_sample_pos = 0; //another play queued - restart
 
             switch (audio_backend)
             {
@@ -118,19 +118,16 @@ static void audio_func(void *data)
                 {
                     uint8_t dac_samples[1024];
 
-                    int samples_available = (audio_wav_data_len - current_byte) / 2;
+                    int samples_available = audio_wav_samples_len - current_sample_pos;
 
                     if (samples_available > 1024)
                         samples_available = 1024;
 
                     for (int i = 0; i < samples_available; ++i) 
-                    {
-                        int32_t sample = (audio_wav_data[current_byte + 2*i] << 8) + audio_wav_data[current_byte + 2*i + 1];
-                        dac_samples[i] = (sample + 32768) >> 8;
-                    }
-
+                        dac_samples[i] = (audio_wav_samples[current_sample_pos + i] + 32768) >> 8;
+                    
                     dac_continuous_write(dac_handle, dac_samples, samples_available, NULL, -1);
-                    current_byte += samples_available * 2;
+                    current_sample_pos += samples_available;
                     break;
                 }
 #endif
@@ -220,7 +217,7 @@ bool audio_init(audio_backend_t backend, gpio_num_t output_pin)
                 ESP_LOGE(TAG, "failed to create audio task");
                 return false;
             }
-            
+
             audio_backend = backend;
             return true;
         }

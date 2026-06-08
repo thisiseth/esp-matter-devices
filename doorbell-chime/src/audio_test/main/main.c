@@ -9,6 +9,7 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "trying to initialize audio");
 
+    //if (!audio_init(AUDIO_BACKEND_PCM_TO_PDM, 26)) 
     if (!audio_init(AUDIO_BACKEND_DAC, 25)) 
     {
         ESP_LOGE(TAG, "failed to initialize audio");
@@ -22,6 +23,6 @@ void app_main(void)
     {
         audio_play();
 
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(35000));
     }
 }
