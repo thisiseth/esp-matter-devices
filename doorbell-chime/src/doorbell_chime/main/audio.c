@@ -112,6 +112,11 @@ static void audio_func(void *data)
 
         int current_sample_pos = 0;
 
+#ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
+        if (audio_backend == AUDIO_BACKEND_PCM_TO_PDM)
+            i2s_channel_enable(i2s_handle);
+#endif
+
         while (current_sample_pos < audio_wav_samples_len)
         {
             if (ulTaskNotifyTake(pdTRUE, 0))
@@ -149,6 +154,16 @@ static void audio_func(void *data)
 
             current_sample_pos += samples_available;
         }
+
+
+#ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
+        if (audio_backend == AUDIO_BACKEND_PCM_TO_PDM)
+        {
+            //wait until buffered audio is played
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            i2s_channel_disable(i2s_handle);
+        }
+#endif
 
         ESP_LOGI(TAG, "audio finished playing");
     }
@@ -259,12 +274,6 @@ bool audio_init(audio_backend_t backend, gpio_num_t output_pin)
             if (i2s_channel_init_pdm_tx_mode(i2s_handle, &pdm_cfg) != ESP_OK) 
             {
                 ESP_LOGE(TAG, "PDM TX init failed");
-                return false;
-            }
-
-            if (i2s_channel_enable(i2s_handle) != ESP_OK) 
-            {
-                ESP_LOGE(TAG, "I2S enable failed");
                 return false;
             }
 
