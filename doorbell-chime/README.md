@@ -1,6 +1,6 @@
 #### Home Assistant
 
-as of today Home Assistant does not support Matter Chime on the frontend side, however the Matter Server addon does
+as of today Home Assistant does not support Matter Chime on the frontend side, however the Matter Server addon does.
 the workaround i use is to directly poke the Matter Server websocket to call the chime play function using a shell command
 
 1. put `chime_play.py` to `/config/scripts/chime_play.py`
