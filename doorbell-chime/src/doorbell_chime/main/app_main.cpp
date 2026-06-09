@@ -47,6 +47,12 @@ using namespace chip::DeviceLayer;
 
 static const char *TAG = "app_main";
 
+//#define CHIME_AUDIO_BACKEND     AUDIO_BACKEND_PCM_TO_PDM
+//#define CHIME_AUDIO_OUTPUT_PIN  (gpio_num_t)25
+
+#define CHIME_AUDIO_BACKEND     AUDIO_BACKEND_DAC
+#define CHIME_AUDIO_OUTPUT_PIN  (gpio_num_t)26
+
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
@@ -70,9 +76,6 @@ extern const char decryption_key_end[] asm("_binary_esp_image_encryption_key_pem
 static const char *s_decryption_key = decryption_key_start;
 static const uint16_t s_decryption_key_len = decryption_key_end - decryption_key_start;
 #endif // CONFIG_ENABLE_ENCRYPTED_OTA
-
-//to debug pairing without the sensor connected
-//#define DEBUG_SKIP_WP_SENSOR_INIT
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -242,7 +245,7 @@ extern "C" void app_main()
 
     MEMORY_PROFILER_DUMP_HEAP_STAT("matter started");
 
-    ABORT_APP_ON_FAILURE(audio_init(AUDIO_BACKEND_PCM_TO_PDM, (gpio_num_t)25), 
+    ABORT_APP_ON_FAILURE(audio_init(CHIME_AUDIO_BACKEND, CHIME_AUDIO_OUTPUT_PIN), 
                          ESP_LOGE(TAG, "Failed to init audio"));
 
     chime_delegate.SoundCallback = audio_play;
