@@ -107,9 +107,6 @@ static void audio_func(void *data)
     {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        if (audio_backend == AUDIO_BACKEND_NONE)
-            continue;
-
         int current_sample_pos = 0;
 
 #ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
@@ -154,7 +151,6 @@ static void audio_func(void *data)
 
             current_sample_pos += samples_available;
         }
-
 
 #ifdef CONFIG_SOC_I2S_SUPPORTS_PCM2PDM
         if (audio_backend == AUDIO_BACKEND_PCM_TO_PDM)

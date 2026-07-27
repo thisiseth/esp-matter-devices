@@ -47,9 +47,10 @@ using namespace chip::DeviceLayer;
 
 static const char *TAG = "app_main";
 
+//configure output here!
+
 //#define CHIME_AUDIO_BACKEND     AUDIO_BACKEND_PCM_TO_PDM
 //#define CHIME_AUDIO_OUTPUT_PIN  (gpio_num_t)25
-
 #define CHIME_AUDIO_BACKEND     AUDIO_BACKEND_DAC
 #define CHIME_AUDIO_OUTPUT_PIN  (gpio_num_t)26
 
