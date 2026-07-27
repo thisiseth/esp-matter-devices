@@ -56,11 +56,11 @@ static void set_led_duty(float r, float g, float b, float ww, float wc);
 
 void lightbulb_init(void)
 {
-    gpio_set_drive_capability(LUNA_LEDC_CHANNEL_R, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(LUNA_LEDC_CHANNEL_G, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(LUNA_LEDC_CHANNEL_B, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(LUNA_LEDC_CHANNEL_WW, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(LUNA_LEDC_CHANNEL_WC, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_LED_R, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_LED_G, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_LED_B, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_LED_WW, GPIO_DRIVE_CAP_3);
+    gpio_set_drive_capability(PIN_LED_WC, GPIO_DRIVE_CAP_3);
     
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
