@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <esp_log.h>
+#include "freertos/FreeRTOS.h"
+#include "../../sunlamp/main/mcpwm_hbridge_led.h"
+
+static const char *TAG = "main";
+
+void app_main(void)
+{
+    ESP_LOGI(TAG, "trying to initialize mcpwm");
+
+    const mcpwm_hbridge_led_config_t led_config = {
+        .pin_ww_plus = 5,
+        .pin_wc_plus = 6,
+
+        .pwm_depth_bits = 9,
+        .minimum_pulse_ns = 600
+    };
+
+    if (!mcpwm_hbridge_led_init(&led_config)) 
+    {
+        ESP_LOGE(TAG, "failed to initialize mcpwm");
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        esp_system_abort("no mcpwm");
+    }
+
+    ESP_LOGI(TAG, "mcpwm iniialized");
+
+    for (;;) 
+    {
+        mcpwm_hbridge_led_set(0.03, 0.6);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        mcpwm_hbridge_led_set(1.0, 1.0);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        mcpwm_hbridge_led_set(1.0, 0.0);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        mcpwm_hbridge_led_set(0.0, 1.0);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        mcpwm_hbridge_led_set(0.0000001, 0.0000001);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        mcpwm_hbridge_led_set(0.0, 0.0);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+}
