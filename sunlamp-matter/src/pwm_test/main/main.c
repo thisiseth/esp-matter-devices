@@ -13,7 +13,8 @@ void app_main(void)
         .pin_ww_plus = 5,
         .pin_wc_plus = 6,
 
-        .pwm_depth_bits = 9,
+        .pwm_frequency = 10000,
+        .pwm_depth_bits = 10,
         .minimum_pulse_ns = 600
     };
 
@@ -28,17 +29,40 @@ void app_main(void)
 
     for (;;) 
     {
-        mcpwm_hbridge_led_set(0.03, 0.6);
-        vTaskDelay(pdMS_TO_TICKS(10000));
-        mcpwm_hbridge_led_set(1.0, 1.0);
-        vTaskDelay(pdMS_TO_TICKS(10000));
-        mcpwm_hbridge_led_set(1.0, 0.0);
-        vTaskDelay(pdMS_TO_TICKS(10000));
-        mcpwm_hbridge_led_set(0.0, 1.0);
-        vTaskDelay(pdMS_TO_TICKS(10000));
-        mcpwm_hbridge_led_set(0.0000001, 0.0000001);
-        vTaskDelay(pdMS_TO_TICKS(10000));
-        mcpwm_hbridge_led_set(0.0, 0.0);
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(0.03, 0.6);
+        // vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(1.0, 1.0);
+        // vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(1.0, 0.0);
+        // vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(0.0, 1.0);
+        // vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(0.0000001, 0.0000001);
+        // vTaskDelay(pdMS_TO_TICKS(10000));
+        // mcpwm_hbridge_led_set(0.0, 0.0);
+        // vTaskDelay(pdMS_TO_TICKS(10000));        
+        
+        // mcpwm_hbridge_led_set(0.1, 0.1);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.013, 0.013);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.01, 0.01);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.009, 0.009);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.008, 0.008);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.007, 0.007);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.006, 0.006);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        // mcpwm_hbridge_led_set(0.005, 0.005);
+        // vTaskDelay(pdMS_TO_TICKS(3000));
+        mcpwm_hbridge_led_set(0.002, 0.002);
+        vTaskDelay(pdMS_TO_TICKS(3000));
+        mcpwm_hbridge_led_set(0.001, 0.001);
+        vTaskDelay(pdMS_TO_TICKS(3000));
+        mcpwm_hbridge_led_set(0.0001, 0.0001);
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
