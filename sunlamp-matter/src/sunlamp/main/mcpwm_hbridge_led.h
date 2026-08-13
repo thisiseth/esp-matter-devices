@@ -28,6 +28,10 @@ typedef struct
     uint32_t pwm_frequency; //if not set freq is calculated so single width pwm pulse = minimum_pulse_ns
                        //for example for 800ns and bit depth 10 (1024 levels) period is 800ns*2*1024=~1.6ms => ~600hz
                        //if freq is set and single width pwm pulse is shorter than minimum_pulse_ns, PDM is used
+
+    bool invert_gpio; //if false idle state is 11 - 'active low' for DRV8871
+
+    bool use_fade;
 } mcpwm_hbridge_led_config_t;
 
 bool mcpwm_hbridge_led_init(const mcpwm_hbridge_led_config_t *config);

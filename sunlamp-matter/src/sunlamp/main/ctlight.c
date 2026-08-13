@@ -39,15 +39,14 @@ void ctlight_init(void)
         .pin_ww_plus = PIN_LED_WW,
         .pin_wc_plus = PIN_LED_WC,
 
+        .pwm_frequency = MCPWM_HBRIDGE_PWM_BASE_FREQ,
         .pwm_depth_bits = MCPWM_HBRIDGE_PWM_DEPTH,
-        .minimum_pulse_ns = MCPWM_HBRIDGE_MIN_PULSE_NS
+        .minimum_pulse_ns = MCPWM_HBRIDGE_MIN_PULSE_NS,
+
+        .use_fade = MCPWM_HBRIDGE_USE_FADE
     };
 
-    if (!mcpwm_hbridge_led_init(&led_config)) 
-        return; //fix error handling here
-
-    gpio_set_drive_capability(PIN_LED_WW, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(PIN_LED_WC, GPIO_DRIVE_CAP_3);
+    configASSERT(mcpwm_hbridge_led_init(&led_config));
         
     xTaskCreate(leds_deferred_task_func, "leds_update_task", 4096, NULL, tskIDLE_PRIORITY, &leds_deferred_task);
     configASSERT(leds_deferred_task);

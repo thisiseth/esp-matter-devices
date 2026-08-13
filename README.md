@@ -27,6 +27,12 @@ DAC is available only on ESP32, PCM-to-PDM is available virtually everywhere.
 
 DAC can be used if you have a way to amplify the analog signal (e.g. a TDA IC), or you can try using PCM-to-PDM with a small gate charge MOSFET like AO3400.
 
+### [sunlamp-matter](/sunlamp-matter)
+
+Another Matter led strip, now in WW-only 'CCT' version, Color Temperature Light device. 
+Made for a kind of exotic two-wire led strip (forward polarity = warm white, reverse polarity = cold white), and requires SOC with MCPWM and an external H-Bridge driver like DRV8871.
+Uses hybrid PWM-PDM modulation to provide both high frequency and high bit depth. 
+
 ## How to
 
 ### Prerequisites

@@ -15,8 +15,10 @@ extern "C" {
 //power limiting factor, 0.0f<factor<=1.0f
 #define MCPWM_HBRIDGE_MAX_BRIGHTNESS 0.5f
 
+#define MCPWM_HBRIDGE_PWM_BASE_FREQ 10000
 #define MCPWM_HBRIDGE_PWM_DEPTH 10
-#define MCPWM_HBRIDGE_MIN_PULSE_NS 800
+#define MCPWM_HBRIDGE_MIN_PULSE_NS 1400
+#define MCPWM_HBRIDGE_USE_FADE true
 
 #define WW_CT 3200
 #define WC_CT 6500
